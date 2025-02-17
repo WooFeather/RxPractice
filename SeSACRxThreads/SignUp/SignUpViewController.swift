@@ -27,8 +27,28 @@ class SignUpViewController: UIViewController {
         configureLayout()
         configure()
         bind()
+        OperatorExample()
         
         nextButton.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
+
+    }
+    
+    func OperatorExample() {
+        let itemA = [3, 5, 23, 6, 23, 1, 32]
+        
+        Observable
+            .repeatElement(itemA)
+            .take(10)
+            .subscribe(with: self) { owner, value in
+                print("take \(value)")
+            } onError: { owner, error in
+                print("take \(error)")
+            } onCompleted: { owner in
+                print("take onCompleted")
+            } onDisposed: { owner in
+                print("take onDisposed")
+            }
+            .disposed(by: disposeBag)
 
     }
     
