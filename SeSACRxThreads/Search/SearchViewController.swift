@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class SearchViewController: UIViewController {
    
@@ -21,6 +23,8 @@ class SearchViewController: UIViewController {
     
     let searchBar = UISearchBar()
     
+    let disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -31,7 +35,27 @@ class SearchViewController: UIViewController {
     }
     
     func bind() {
-        print(#function)
+        let items = Observable.just([
+            "첫 번째 Item",
+            "두 번째 Item",
+            "세 번째 Item"
+        ])
+
+        items
+        .bind(to: tableView.rx.items) { (tableView, row, element) in
+            let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.identifier) as! SearchTableViewCell
+            cell.appNameLabel.text = "\(element) @ row \(row)"
+            return cell
+        }
+        .disposed(by: disposeBag)
+        
+        tableView
+            .rx
+            .itemSelected
+            .bind { index in
+                print(index)
+            }
+            .disposed(by: disposeBag)
     }
      
     private func setSearchController() {

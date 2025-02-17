@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class SignInViewController: UIViewController {
 
@@ -14,6 +16,8 @@ class SignInViewController: UIViewController {
     let passwordTextField = SignTextField(placeholderText: "비밀번호를 입력해주세요")
     let signInButton = PointButton(title: "로그인")
     let signUpButton = UIButton()
+    
+    let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,12 +27,21 @@ class SignInViewController: UIViewController {
         configureLayout()
         configure()
         
-        signUpButton.addTarget(self, action: #selector(signUpButtonClicked), for: .touchUpInside)
+//        signUpButton.addTarget(self, action: #selector(signUpButtonClicked), for: .touchUpInside)
+        
+        signUpButton
+            .rx
+            .tap
+        
+            .bind { _ in
+                self.navigationController?.pushViewController(SignUpViewController(), animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
-    @objc func signUpButtonClicked() {
-        navigationController?.pushViewController(SignUpViewController(), animated: true)
-    }
+//    @objc func signUpButtonClicked() {
+//        navigationController?.pushViewController(SignUpViewController(), animated: true)
+//    }
     
     
     func configure() {
