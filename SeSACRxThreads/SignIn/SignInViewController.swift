@@ -20,6 +20,11 @@ class SignInViewController: UIViewController {
     // Observable => 이걸로 무슨일을 할지는 모르겠지만, 일단 텍스트임
     let emailText = Observable.just("a@a.com")
     
+    let backgroundColor = Observable.just(UIColor.lightGray)
+    
+    let signUpTitle = Observable.just("회원이 아직 아니십니까?")
+    let signUpTitleColor = Observable.just(UIColor.red)
+    
     let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
@@ -29,6 +34,7 @@ class SignInViewController: UIViewController {
         
         configureLayout()
         configure()
+        bindBackgroundColor()
         
 //        signUpButton.addTarget(self, action: #selector(signUpButtonClicked), for: .touchUpInside)
         
@@ -40,14 +46,14 @@ class SignInViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        signUpButton
-            .rx
-            .tap // Observable => 어떤 동작인지는 모르겠는데 일단 클릭은 됨
-            .subscribe { _ in // 버튼을 탭했을 때 뭐해줄건데?
-                self.navigationController?.pushViewController(SignUpViewController(), animated: true)
-                print("button tap onNext")
-            }
-            .disposed(by: disposeBag) // 항상 마지막에 써줘야 함
+//        signUpButton
+//            .rx
+//            .tap // Observable => 어떤 동작인지는 모르겠는데 일단 클릭은 됨
+//            .subscribe { _ in // 버튼을 탭했을 때 뭐해줄건데?
+//                self.navigationController?.pushViewController(SignUpViewController(), animated: true)
+//                print("button tap onNext")
+//            }
+//            .disposed(by: disposeBag) // 항상 마지막에 써줘야 함
 
         
         emailText
@@ -65,14 +71,75 @@ class SignInViewController: UIViewController {
 
     }
     
+    func bindBackgroundColor() {
+        // 기본 형태
+//        backgroundColor
+//            .subscribe { value in
+//                self.view.backgroundColor = value
+//            } onError: { error in
+//                print(#function, error)
+//            } onCompleted: {
+//                print(#function, "onCompleted")
+//            } onDisposed: {
+//                print(#function, "onDisposed")
+//            }
+//            .disposed(by: disposeBag)
+//        
+//        // 순환참조 이슈 해결
+//        backgroundColor
+//            // with를 통해 순환참조를 해결해서 나온 친구 => owner
+//            .subscribe(with: self) { owner, value in
+//                owner.view.backgroundColor = value
+//            } onError: { owner, error in
+//                print(#function, error)
+//            } onCompleted: { owner in
+//                print(#function, "onCompleted")
+//            } onDisposed: { owner in
+//                print(#function, "onDisposed")
+//            }
+//            .disposed(by: disposeBag)
+//        
+//        // 호출되지 않는 이벤트 생략
+//        backgroundColor
+//            // with를 통해 순환참조를 해결해서 나온 친구 => owner
+//            .subscribe(with: self) { owner, value in
+//                owner.view.backgroundColor = value
+//            }
+//            .disposed(by: disposeBag)
+//
+//        // 이벤트를 받지 못하는 bind로, next만 동작되면 되는 기능이라면 bind로 구현
+//        // 보통 UI와 관련된 코드에서 사용됨
+//        backgroundColor
+//            // with를 통해 순환참조를 해결해서 나온 친구 => owner
+//            .bind(with: self) { owner, value in
+//                owner.view.backgroundColor = value
+//            }
+//            .disposed(by: disposeBag)
+//        
+        backgroundColor
+            .bind(to: view.rx.backgroundColor)
+            .disposed(by: disposeBag)
+    }
+    
+    
 //    @objc func signUpButtonClicked() {
 //        navigationController?.pushViewController(SignUpViewController(), animated: true)
 //    }
     
     
     func configure() {
-        signUpButton.setTitle("회원이 아니십니까?", for: .normal)
-        signUpButton.setTitleColor(Color.black, for: .normal)
+//        signUpButton.setTitle("회원이 아니십니까?", for: .normal)
+//        signUpButton.setTitleColor(Color.black, for: .normal)
+        
+        signUpTitle
+            .bind(to: signUpButton.rx.title())
+            .disposed(by: disposeBag)
+        
+        signUpTitleColor
+            .bind(with: self, onNext: { owner, color in
+                owner.signUpButton.setTitleColor(color, for: .normal)
+            })
+            .disposed(by: disposeBag)
     }
     
     func configureLayout() {
