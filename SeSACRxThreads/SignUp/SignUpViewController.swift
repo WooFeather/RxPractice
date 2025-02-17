@@ -17,7 +17,7 @@ class SignUpViewController: UIViewController {
     let nextButton = PointButton(title: "다음")
     
     let emailPlaceholder = Observable.just("이메일을 입력해주세요")
-    let disposeBag = DisposeBag()
+    var disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +33,45 @@ class SignUpViewController: UIViewController {
     }
     
     func bind() {
+        // 4자리 이상: 다음버튼 나타나고, 중복확인 버튼이 탭되게 하고 싶음
+        let validation =  emailTextField
+            .rx
+            .text
+            .orEmpty
+            .map { $0.count >= 4 }
+        
+//        validation.bind(to: validationButton.rx.isEnabled)
+//            .disposed(by: disposeBag)
+        
+        validation
+            .subscribe(with: self) { owner, value in
+                owner.validationButton.isEnabled = value
+                print("validation onNext")
+            } onDisposed: { owner in
+                print("validation onDisposed")
+            }
+            .disposed(by: disposeBag)
+
+        
+        validationButton.rx.tap
+            .bind(with: self) { owner, value in
+                print("중복확인 버튼 눌림")
+                owner.disposeBag = DisposeBag()
+            }
+            .disposed(by: disposeBag)
+        
+//        validation
+//            .bind(with: self) { owner, value in
+//                if value.count < 4 {
+//                    owner.nextButton.isHidden = true
+//                    owner.validationButton.isEnabled = false
+//                } else {
+//                    owner.nextButton.isHidden = false
+//                    owner.validationButton.isEnabled = true
+//                }
+//            }
+//            .disposed(by: disposeBag)
+        
         emailPlaceholder
             .bind(to: emailTextField.rx.placeholder)
             .disposed(by: disposeBag)
