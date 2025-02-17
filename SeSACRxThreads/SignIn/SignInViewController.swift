@@ -17,6 +17,9 @@ class SignInViewController: UIViewController {
     let signInButton = PointButton(title: "로그인")
     let signUpButton = UIButton()
     
+    // Observable => 이걸로 무슨일을 할지는 모르겠지만, 일단 텍스트임
+    let emailText = Observable.just("a@a.com")
+    
     let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
@@ -32,11 +35,34 @@ class SignInViewController: UIViewController {
         signUpButton
             .rx
             .tap
-        
             .bind { _ in
                 self.navigationController?.pushViewController(SignUpViewController(), animated: true)
             }
             .disposed(by: disposeBag)
+        
+        signUpButton
+            .rx
+            .tap // Observable => 어떤 동작인지는 모르겠는데 일단 클릭은 됨
+            .subscribe { _ in // 버튼을 탭했을 때 뭐해줄건데?
+                self.navigationController?.pushViewController(SignUpViewController(), animated: true)
+                print("button tap onNext")
+            }
+            .disposed(by: disposeBag) // 항상 마지막에 써줘야 함
+
+        
+        emailText
+            .subscribe { value in // 텍스트로 어떤 동작을 할건데?
+                self.emailTextField.text = value
+                print("emailText onNext")
+            } onError: { error in
+                print("emailText onError")
+            } onCompleted: { // 완벽하게 데이터를 받았을 때
+                print("emailText onCompleted")
+            } onDisposed: { // 리소스를 정리했을때를 명시적으로 보기 위함
+                print("emailText onDisposed")
+            }
+            .disposed(by: disposeBag) // 일을 끝냈으면 더이상 리소스를 차지하고 있을 필요가 없어서 dispose
+
     }
     
 //    @objc func signUpButtonClicked() {
@@ -79,6 +105,4 @@ class SignInViewController: UIViewController {
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
     }
-    
-
 }
