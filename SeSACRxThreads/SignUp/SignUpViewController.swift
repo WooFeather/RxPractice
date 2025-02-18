@@ -57,7 +57,7 @@ class SignUpViewController: UIViewController {
         let validation =  emailTextField
             .rx
             .text
-            .orEmpty
+            .orEmpty // 옵셔널 처리
             .map { $0.count >= 4 }
         
 //        validation.bind(to: validationButton.rx.isEnabled)

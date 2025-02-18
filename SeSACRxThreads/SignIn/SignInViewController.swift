@@ -17,7 +17,7 @@ class SignInViewController: UIViewController {
     let signInButton = PointButton(title: "로그인")
     let signUpButton = UIButton()
     
-    // Observable => 이걸로 무슨일을 할지는 모르겠지만, 일단 텍스트임
+    // Observable => 이걸로 무슨일을 할지는 모르겠지만, 일단 방출
     let emailText = Observable.just("a@a.com")
     
     let backgroundColor = Observable.just(UIColor.lightGray)
@@ -136,9 +136,9 @@ class SignInViewController: UIViewController {
             .disposed(by: disposeBag)
         
         signUpTitleColor
-            .bind(with: self, onNext: { owner, color in
+            .bind(with: self) { owner, color in
                 owner.signUpButton.setTitleColor(color, for: .normal)
-            })
+            }
             .disposed(by: disposeBag)
     }
     
